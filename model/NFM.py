@@ -17,8 +17,8 @@ class NeuralFactorizationMachine(nn.Module):
         self.mlp = MultiLayerPerceptron([embed_dim, 256, 128, 1])
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
-        # embed(x) shape: (batch_size, num_fields, embed_dim)
+        # 输入 x 的形状：(batch_size, num_fields)
+        # 嵌入后 embed(x) 的形状：(batch_size, num_fields, embed_dim)
 
         embeddings = self.embed2(x)
 

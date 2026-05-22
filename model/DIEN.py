@@ -32,8 +32,8 @@ class Attention(nn.Module):
         )
     
     def forward(self, packed: PackedSequence, query):
-        # query shape: (batch_size, embed_dim)
-        # x shape: (num_x, embed_dim)
+        # 查询向量的形状：(batch_size, embed_dim)
+        # 序列张量 x 的形状：(num_x, embed_dim)
         x, batch_sizes, sorted_indices, unsorted_indices = packed
         query = query[sorted_indices]
         idx_list = []
@@ -41,7 +41,7 @@ class Attention(nn.Module):
             idx_list.extend(range(batch_size))
         query = query[idx_list]
                 
-        # outer product
+        # 外积
         i1, i2 = [], []
         for i in range(x.shape[-1]):
             for j in range(query.shape[-1]):
@@ -119,7 +119,7 @@ class DeepInterestEvolutionNetwork(nn.Module):
     def __init__(self, field_dims, embed_dim=4):
         super(DeepInterestEvolutionNetwork, self).__init__()
         hidden_size = embed_dim
-        # 商品 embedding 层
+        # 商品 Embedding 层
         self.embed = Embedding(field_dims[0], embed_dim)
         
         self.gru = nn.GRU(embed_dim, hidden_size, batch_first=True)
@@ -149,7 +149,7 @@ class DeepInterestEvolutionNetwork(nn.Module):
         if neg_sample is None:
             return output
         else:
-            # auxiliary loss part
+            # 辅助损失部分
             gru_output, _ = pad_packed_sequence(packed_gru_output, batch_first=True)
             gru_embedding = gru_output[:, 1:][neg_sample > 0]
             

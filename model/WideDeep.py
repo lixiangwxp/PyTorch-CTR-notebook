@@ -16,7 +16,7 @@ class WideDeep(nn.Module):
         self.fc = nn.Linear(32 + embed_dim * len(field_dims), 1)
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
+        # 输入 x 的形状：(batch_size, num_fields)
         wide_output = self.wide(x)
         embedding_output = self.embedding(x).reshape(x.shape[0], -1)
         deep_output = self.deep(embedding_output)

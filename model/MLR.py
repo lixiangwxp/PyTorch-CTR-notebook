@@ -13,7 +13,7 @@ class LogisticRegression(nn.Module):
         self.embed = FeaturesEmbedding(field_dims, 1)
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
+        # 输入 x 的形状：(batch_size, num_fields)
         output = self.embed(x).sum(dim=1) + self.bias
         output = torch.sigmoid(output)
         return output
@@ -27,12 +27,12 @@ class Classifier(nn.Module):
         self.embed = FeaturesEmbedding(field_dims, k)
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
-        # embed(x) shape: (batch_size, num_fields, embed_dim)
-        # output shape: (batch_size, k)
+        # 输入 x 的形状：(batch_size, num_fields)
+        # 嵌入后 embed(x) 的形状：(batch_size, num_fields, embed_dim)
+        # 输出张量的形状：(batch_size, k)
         output = self.embed(x).sum(dim=1)
 
-        # output shape: (batch_size, k)
+        # 输出张量的形状：(batch_size, k)
         output = torch.softmax(output, dim=1)
         return output
 

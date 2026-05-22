@@ -17,8 +17,8 @@ class FieldAwareFactorizationMachine(nn.Module):
         self.embed_cross = nn.ModuleList([FeaturesEmbedding(field_dims, embed_dim) for _ in field_dims])
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
-        # embed(x) shape: (batch_size, num_fields, embed_dim)
+        # 输入 x 的形状：(batch_size, num_fields)
+        # 嵌入后 embed(x) 的形状：(batch_size, num_fields, embed_dim)
 
         num_fields = len(self.field_dims)
 

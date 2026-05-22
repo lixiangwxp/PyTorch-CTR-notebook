@@ -28,7 +28,7 @@ class CrossNetwork(nn.Module):
         ])
 
     def forward(self, x0):
-        # x size: (batch_size, num_fields)
+        # 输入 x 的形状：(batch_size, num_fields)
         x0, output = self.layers((x0, x0))
 
         return output
@@ -46,7 +46,7 @@ class DeepCrossNetwork(nn.Module):
         self.fc = nn.Linear(32 + embed_dim * len(field_dims), 1)
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
+        # 输入 x 的形状：(batch_size, num_fields)
         x = self.embedding(x).reshape(x.shape[0], -1)
 
         cross_output = self.cross(x)

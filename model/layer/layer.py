@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 
 
-# 在 cpu 下，比 nn.Embedding 快，但是在 gpu 的序列模型下比后者慢太多了
+# 在 CPU 上它通常比 nn.Embedding 更快，但在 GPU 的序列模型里会慢很多
 class CpuEmbedding(nn.Module):
 
     def __init__(self, num_embeddings, embed_dim):
@@ -14,8 +14,8 @@ class CpuEmbedding(nn.Module):
 
     def forward(self, x):
         """
-        :param x: shape (batch_size, num_fields)
-        :return: shape (batch_size, num_fields, embedding_dim)
+        :param x: 输入张量，形状为 (batch_size, num_fields)
+        :return: 返回张量，形状为 (batch_size, num_fields, embedding_dim)
         """
         return self.weight[x]
 
@@ -37,13 +37,13 @@ class FeaturesEmbedding(nn.Module):
         super(FeaturesEmbedding, self).__init__()
         self.embedding = Embedding(sum(field_dims), embed_dim)
 
-        # e.g. field_dims = [2, 3, 4, 5], offsets = [0, 2, 5, 9]
-        self.offsets = np.array((0, *np.cumsum(field_dims)[:-1]), dtype=np.long)
+        # 例如：field_dims = [2, 3, 4, 5] 时，offsets = [0, 2, 5, 9]
+        self.offsets = np.array((0, *np.cumsum(field_dims)[:-1]), dtype=np.int64)
 
     def forward(self, x):
         """
-        :param x: shape (batch_size, num_fields)
-        :return: shape (batch_size, num_fields, embedding_dim)
+        :param x: 输入张量，形状为 (batch_size, num_fields)
+        :return: 返回张量，形状为 (batch_size, num_fields, embedding_dim)
         """
         x = x + x.new_tensor(self.offsets)
         return self.embedding(x)
@@ -56,8 +56,8 @@ class EmbeddingsInteraction(nn.Module):
 
     def forward(self, x):
         """
-        :param x: shape (batch_size, num_fields, embedding_dim)
-        :return: shape (batch_size, num_fields*(num_fields)//2, embedding_dim)
+        :param x: 输入张量，形状为 (batch_size, num_fields, embedding_dim)
+        :return: 返回两两特征交互后的张量，形状为 (batch_size, num_fields*(num_fields)//2, embedding_dim)
         """
 
         num_fields = x.shape[1]

@@ -7,10 +7,10 @@ import torch.nn as nn
 class BaseModel(nn.Module):
 
     def __init__(self, field_dims, embed_dim=4):
-        # 这里只用用户的行为序列作为特征，没用户数据
+        # 这里只使用用户行为序列特征，不额外引入用户侧特征
         super(BaseModel, self).__init__()
 
-        # 商品 embedding 层
+        # 商品 Embedding 层
         self.embed = Embedding(field_dims[0], embed_dim)
         self.mlp = MultiLayerPerceptron([embed_dim * 2, 200, 80, 1])
 
@@ -59,7 +59,7 @@ class ActivationUnit(nn.Module):
 
         ads = x[:, [-1] * num_behaviors]
 
-        # outer product
+        # 外积
         embed_dim = x.shape[-1]
         i1, i2 = [], []
         for i in range(embed_dim):
@@ -76,7 +76,7 @@ class DeepInterestNetwork(nn.Module):
 
     def __init__(self, field_dims, embed_dim=4):
         super(DeepInterestNetwork, self).__init__()
-        # 商品 embedding 层
+        # 商品 Embedding 层
         self.embed = Embedding(field_dims[0], embed_dim)
         self.attention = ActivationUnit(embed_dim)
         self.mlp = nn.Sequential(

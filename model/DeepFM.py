@@ -20,8 +20,8 @@ class DeepFM(nn.Module):
         self.fc = nn.Linear(1 + num_fileds * (num_fileds - 1) // 2 + 32, 1)
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
-        # embed(x) shape: (batch_size, num_fields, embed_dim)
+        # 输入 x 的形状：(batch_size, num_fields)
+        # 嵌入后 embed(x) 的形状：(batch_size, num_fields, embed_dim)
 
         embeddings = self.embed2(x)
         embeddings_cross = self.fm(embeddings).sum(dim=-1)

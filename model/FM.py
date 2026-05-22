@@ -14,8 +14,8 @@ class FactorizationMachine(nn.Module):
         self.bias = nn.Parameter(torch.zeros((1,)))
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
-        # embed(x) shape: (batch_size, num_fields, embed_dim)
+        # 输入 x 的形状：(batch_size, num_fields)
+        # 嵌入后 embed(x) 的形状：(batch_size, num_fields, embed_dim)
         square_sum = self.embed2(x).sum(dim=1).pow(2).sum(dim=1)
         sum_square = self.embed2(x).pow(2).sum(dim=1).sum(dim=1)
         output = self.embed1(x).squeeze(-1).sum(dim=1) + self.bias + (square_sum - sum_square) / 2

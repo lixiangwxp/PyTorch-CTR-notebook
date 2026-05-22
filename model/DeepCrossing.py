@@ -31,7 +31,7 @@ class DeepCrossing(nn.Module):
         self.fc = nn.Linear(input_size, 1)
 
     def forward(self, x):
-        # x shape: (batch_size, num_fields)
+        # 输入 x 的形状：(batch_size, num_fields)
         x = self.embed(x)
         x = x.reshape(x.shape[0], -1)
         x = self.res(x)

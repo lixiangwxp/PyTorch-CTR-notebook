@@ -39,8 +39,8 @@ class AttentionalFactorizationMachine(nn.Module):
         nn.init.xavier_uniform_(self.p.unsqueeze(0).data)
 
     def forward(self, x):
-        # x size: (batch_size, num_fields)
-        # embed(x) size: (batch_size, num_fields, embed_dim)
+        # 输入 x 的形状：(batch_size, num_fields)
+        # 嵌入后 embed(x) 的形状：(batch_size, num_fields, embed_dim)
 
         embeddings = self.embed2(x)
         interactions = self.interact(embeddings)

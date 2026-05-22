@@ -1,4 +1,5 @@
 from copy import deepcopy
+from pathlib import Path
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
@@ -10,6 +11,9 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
 import torch
+
+
+DATASET_DIR = Path(__file__).resolve().parents[2] / 'dataset'
 
 
 class Dataset:
@@ -60,15 +64,15 @@ class CriteoDataset(Dataset):
         dense_features = ['I' + str(i) for i in range(1, 14)]
         features = sparse_features + dense_features
 
-        # 缺失值填充
+        # 先填充缺失值
         data_df[sparse_features] = data_df[sparse_features].fillna('-1')
         data_df[dense_features] = data_df[dense_features].fillna(0)
 
-        # 连续型特征等间隔分箱
+        # 将连续特征按等宽区间分桶
         est = KBinsDiscretizer(n_bins=100, encode='ordinal', strategy='uniform')
         data_df[dense_features] = est.fit_transform(data_df[dense_features])
 
-        # 离散型特征转换成连续数字，为了在与参数计算时使用索引的方式计算，而不是向量乘积
+        # 将离散特征编码成连续整数，后续可直接按索引查表
         data_df[features] = OrdinalEncoder().fit_transform(data_df[features])
 
         self.data = data_df[features + ['label']].values
@@ -109,14 +113,15 @@ class AmazonBooksDataset(Dataset):
         data_df['hist_item_list'] = data_df.apply(lambda x: x['hist_item_list'].split('|'), axis=1)
         data_df['hist_cate_list'] = data_df.apply(lambda x: x['hist_cate_list'].split('|'), axis=1)
 
-        # cate encoder
+        # 对类别特征重新编码
         cate_list = list(data_df['cateID'])
         data_df.apply(lambda x: cate_list.extend(x['hist_cate_list']), axis=1)
         cate_set = set(cate_list + ['0'])
         cate_encoder = LabelEncoder().fit(list(cate_set))
         self.cate_set = cate_encoder.transform(list(cate_set))
+        self.field_dims = [len(cate_encoder.classes_)]
 
-        # cate pad and transform
+        # 对类别序列做补齐并完成编码转换
         hist_limit = sequence_length
         col = ['hist_cate_{}'.format(i) for i in range(hist_limit)]
 
@@ -133,7 +138,7 @@ class AmazonBooksDataset(Dataset):
         self.data = cate_df.values
 
     def train_valid_test_split(self, train_size=0.8, valid_size=0.1, test_size=0.1):
-        field_dims = [self.data[:-1].max().astype(int) + 1]
+        field_dims = self.field_dims
         num_data = len(self.data)
         num_train = int(train_size * num_data)
         num_test = int(test_size * num_data)
@@ -154,13 +159,13 @@ class AmazonBooksDataset(Dataset):
 
 def create_dataset(dataset='criteo', read_part=True, sample_num=100000, task='classification', sequence_length=40, device=torch.device('cpu')):
     if dataset == 'criteo':
-        return CriteoDataset('../dataset/criteo-100k.txt', read_part=read_part, sample_num=sample_num).to(device)
+        return CriteoDataset(DATASET_DIR / 'criteo-100k.txt', read_part=read_part, sample_num=sample_num).to(device)
     elif dataset == 'movielens':
-        return MovieLensDataset('../dataset/ml-latest-small-ratings.txt', read_part=read_part, sample_num=sample_num, task=task).to(device)
+        return MovieLensDataset(DATASET_DIR / 'ml-latest-small-ratings.txt', read_part=read_part, sample_num=sample_num, task=task).to(device)
     elif dataset == 'amazon-books':
-        return AmazonBooksDataset('../dataset/amazon-books-100k.txt', read_part=read_part, sample_num=sample_num, sequence_length=sequence_length).to(device)
+        return AmazonBooksDataset(DATASET_DIR / 'amazon-books-100k.txt', read_part=read_part, sample_num=sample_num, sequence_length=sequence_length).to(device)
     else:
-        raise Exception('No such dataset!')
+        raise Exception('不存在这个数据集！')
 
 
 class EarlyStopper:
@@ -173,7 +178,7 @@ class EarlyStopper:
         self.model = model
 
     def is_continuable(self, metric):
-        # maximize metric
+        # 评价指标越大越好
         if metric > self.best_metric:
             self.best_metric = metric
             self.trial_counter = 0
@@ -228,7 +233,7 @@ class Trainer:
         if self.batch_size:
             train_loader = BatchLoader(train_X, train_y, self.batch_size)
         else:
-            # 为了在 for b_x, b_y in train_loader 的时候统一
+            # 统一全量训练和按批训练两种迭代方式
             train_loader = [[train_X, train_y]]
 
         if trials:
@@ -238,7 +243,7 @@ class Trainer:
         valid_loss_list = []
 
         for e in tqdm(range(epoch)):
-            # train part
+            # 训练阶段
             self.model.train()
             train_loss_ = 0
             for b_x, b_y in train_loader:
@@ -252,7 +257,7 @@ class Trainer:
 
             train_loss_list.append(train_loss_ / len(train_X))
 
-            # valid part
+            # 验证阶段
             if trials:
                 valid_loss, valid_metric = self.test(valid_X, valid_y)
                 valid_loss_list.append(valid_loss)
@@ -261,16 +266,16 @@ class Trainer:
 
         if trials:
             self.model.load_state_dict(early_stopper.best_state)
-            plt.plot(valid_loss_list, label='valid_loss')
+            plt.plot(valid_loss_list, label='验证损失')
 
-        plt.plot(train_loss_list, label='train_loss')
+        plt.plot(train_loss_list, label='训练损失')
         plt.legend()
         plt.show()
 
-        print('train_loss: {:.5f} | train_metric: {:.5f}'.format(*self.test(train_X, train_y)))
+        print('训练集 loss: {:.5f} | 训练集指标: {:.5f}'.format(*self.test(train_X, train_y)))
 
         if trials:
-            print('valid_loss: {:.5f} | valid_metric: {:.5f}'.format(*self.test(valid_X, valid_y)))
+            print('验证集 loss: {:.5f} | 验证集指标: {:.5f}'.format(*self.test(valid_X, valid_y)))
 
     def test(self, test_X, test_y):
         self.model.eval()
