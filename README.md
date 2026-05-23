@@ -6,6 +6,7 @@
 - Embedding 相关实现思路参考了 [pytorch-fm](https://github.com/rixwew/pytorch-fm)。
 - 我补充了中文注释、中文 Markdown、可直接创建的 `conda` 环境文件，以及更稳妥的数据路径解析方式。
 - 新增了 Microsoft Recommenders 两个示例的 PyTorch 改写版：推荐系统评估指标，以及 MIND/NRMS 新闻推荐。
+- 新增了 RecTools Transformer Models Tutorial 的 PyTorch 中文学习版：SASRec / BERT4Rec 序列推荐。
 
 ## 数据集
 
@@ -48,6 +49,13 @@
 - `notebook/Microsoft_NRMS_MIND_PyTorch.ipynb`：对应 Microsoft Recommenders 的 `examples/00_quick_start/nrms_MIND.ipynb`，用 PyTorch 从零实现一个可跑通的 NRMS/MIND 新闻推荐教学样例。
 
 这两个新增 notebook 都不依赖 TensorFlow，也不依赖 Microsoft `recommenders` 包，方便直接在本仓库环境里运行和学习。
+
+## RecTools Transformer 序列推荐 PyTorch 示例
+
+- `rectools_transformer_models_tutorial/notebooks/01_sasrec_bert4rec_pytorch.ipynb`：对应 RecTools 官方 Transformer Models Tutorial，用纯 PyTorch 讲解 SASRec、BERT4Rec、序列 padding/mask、next-item prediction、多种 loss、Top-K 评估、item-to-item 推荐和冷启动推理。
+- `rectools_transformer_models_tutorial/src/transformer_seqrec.py`：notebook 依赖的 PyTorch 实现，方便单独查看底层模型和数据处理代码。
+
+这个子目录不依赖 TensorFlow，也不强制安装 RecTools；它把官方 tutorial 的学习重点整理成了更轻量的可运行 PyTorch 版本。
 
 ## 环境配置
 
