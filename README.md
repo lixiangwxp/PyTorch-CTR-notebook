@@ -5,6 +5,7 @@
 - 所有模型都提供了对应的 notebook 版本，便于逐格阅读和调试。
 - Embedding 相关实现思路参考了 [pytorch-fm](https://github.com/rixwew/pytorch-fm)。
 - 我补充了中文注释、中文 Markdown、可直接创建的 `conda` 环境文件，以及更稳妥的数据路径解析方式。
+- 新增了 Microsoft Recommenders 两个示例的 PyTorch 改写版：推荐系统评估指标，以及 MIND/NRMS 新闻推荐。
 
 ## 数据集
 
@@ -40,6 +41,13 @@
 | 深度兴趣演化网络（DIEN） | [Guorui Zhou, et al. Deep Interest Evolution Network for Click-Through Rate Prediction, 2018.](https://arxiv.org/abs/1809.03672) |
 | 隐语义因子模型（LFM） |  |
 | 神经协同过滤（NeuralCF） | [X He, et al. Neural Collaborative Filtering, 2017.](https://arxiv.org/abs/1708.05031) |
+
+## Microsoft Recommenders PyTorch 示例
+
+- `notebook/Microsoft_Evaluation_PyTorch.ipynb`：对应 Microsoft Recommenders 的 `examples/03_evaluate/evaluation.ipynb`，用 PyTorch/Pandas 手写 RMSE、MAE、R2、Precision@K、Recall@K、NDCG@K、MAP@K、AUC、LogLoss 等指标。
+- `notebook/Microsoft_NRMS_MIND_PyTorch.ipynb`：对应 Microsoft Recommenders 的 `examples/00_quick_start/nrms_MIND.ipynb`，用 PyTorch 从零实现一个可跑通的 NRMS/MIND 新闻推荐教学样例。
+
+这两个新增 notebook 都不依赖 TensorFlow，也不依赖 Microsoft `recommenders` 包，方便直接在本仓库环境里运行和学习。
 
 ## 环境配置
 
